@@ -4,4 +4,3 @@ class CartModel {
 
   CartModel({required this.menuId, required this.quantity});
 }
-

@@ -24,9 +24,9 @@ class CartProvider with ChangeNotifier {
     } else {
       //belum ada
       _cart.add(CartModel(menuId: menuId, quantity: 1));
-    print('JUMLAH : ' + _cart.length.toString());
-    _total = _total + 1;
-  }
+      print('JUMLAH : ' + _cart.length.toString());
+      _total = _total + 1;
+    }
     notifyListeners();
   }
 }
