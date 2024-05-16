@@ -1,4 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+package="com.example.kanatin">
+<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
     <application
         android:label="kanatin"
         android:name="${applicationName}"
