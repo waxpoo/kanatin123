@@ -1,217 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'main.dart'; // Pastikan untuk mengimpor file home_page.dart atau file halaman utama yang sesuai
 
-void main() {
-  runApp(MyApp());
-}
-
-class UserProvider with ChangeNotifier {
-  Map<String, Map<String, String>> _users = {};
-
-  void register(String name, String password, String address) {
-    _users[name] = {'password': password, 'address': address};
-    notifyListeners();
-  }
-
-  bool login(String name, String password) {
-    return _users.containsKey(name) && _users[name]!['password'] == password;
-  }
-
-  String getAddress(String name) {
-    return _users[name]!['address']!;
-  }
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => UserProvider())],
-      child: MaterialApp(
-        theme: ThemeData(primarySwatch: Colors.green),
-        home: LoginPage(),
-      ),
-    );
-  }
-}
-
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  void login() {
-    if (_formKey.currentState!.validate()) {
-      bool success = Provider.of<UserProvider>(context, listen: false)
-          .login(nameController.text, passwordController.text);
-      if (success) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login failed. Please try again.")),
-        );
-      }
-    }
-  }
-
-  void navigateToRegister() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => RegisterPage()),
-    );
-  }
+class LoginPage extends StatelessWidget {
+  // Buat kontroler untuk TextField
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: "Nama"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your name";
-                  }
-                  return null;
-                },
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              height: 200,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(
+                      'https://png.pngtree.com/png-clipart/20191121/original/pngtree-user-login-or-authenticate-icon-on-gray-background-flat-icon-ve-png-image_5089976.jpg'),
+                  fit: BoxFit.cover,
+                ),
               ),
-              TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(labelText: "Password"),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your password";
-                  }
-                  return null;
-                },
+              child: Center(
+                child: Text(
+                  'Selamat Datang',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: login,
-                child: Text("Login"),
-              ),
-              TextButton(
-                onPressed: navigateToRegister,
-                child: Text("Don't have an account? Register here"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: usernameController,
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Di sini Anda dapat menambahkan logika autentikasi
+                      // Misalnya, Anda bisa menambahkan kondisi sederhana untuk memeriksa apakah username dan password benar.
+                      // Jika benar, navigasikan ke halaman utama (HomePage).
+                      String username = "admin";
+                      String password = "admin";
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+                      String enteredUsername = usernameController.text;
+                      String enteredPassword = passwordController.text;
 
-  @override
-  State<RegisterPage> createState() => _RegisterPageState();
-}
-
-class _RegisterPageState extends State<RegisterPage> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  void register() {
-    if (_formKey.currentState!.validate()) {
-      Provider.of<UserProvider>(context, listen: false).register(
-        nameController.text,
-        passwordController.text,
-        addressController.text,
-      );
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Registration successful. Please login.")),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Register")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: "Nama"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your name";
-                  }
-                  return null;
-                },
+                      if (enteredUsername == username && enteredPassword == password) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      } else {
+                        // Tambahkan pesan kesalahan jika login tidak berhasil
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Login gagal. Periksa kembali username dan password Anda."),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text('Login'),
+                  ),
+                ],
               ),
-              TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(labelText: "Password"),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your password";
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: addressController,
-                decoration: InputDecoration(labelText: "Alamat"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter your address";
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: register,
-                child: Text("Register"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Home Page")),
-      body: Center(
-        child: Text(
-          "Welcome to Home Page!",
-          style: GoogleFonts.montserrat(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );

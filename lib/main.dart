@@ -6,14 +6,30 @@ import 'package:kanatin/models/menu_model.dart';
 import 'package:http/http.dart' as myHttp;
 import 'package:kanatin/provider/cart_provider.dart';
 import 'package:provider/provider.dart';
+import 'login.dart';
+
 
 void main() {
   runApp(MyApp());
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  //login
+@override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (context) => CartProvider())],
+      child: MaterialApp(
+        theme: ThemeData(primarySwatch: Colors.green),
+        home: LoginPage(), // Mengubah home menjadi LoginPage
+      ),
+    );
+  }
+}
+//multiprovider
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -24,7 +40,7 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-}
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,7 +48,7 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
+//controllernya
 class _HomePageState extends State<HomePage> {
   TextEditingController namaController = TextEditingController();
   TextEditingController nomormejaController = TextEditingController();
@@ -66,94 +82,111 @@ class _HomePageState extends State<HomePage> {
     });
   }
 // ini keranjang
-  void openDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: Container(
-            height: 280,
-            child: Column(
-              children: [
-                Text(
-                  "Nama",
-                  style: GoogleFonts.montserrat(),
-                ),
-                TextFormField(
-                  controller: namaController,
-                  decoration: InputDecoration(border: OutlineInputBorder()),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  "Nomor Meja",
-                  style: GoogleFonts.montserrat(),
-                ),
-                TextFormField(
-                  controller: nomormejaController,
-                  decoration: InputDecoration(border: OutlineInputBorder()),
-                ),
-                SizedBox(height: 20),
-                Consumer<CartProvider>(
-                  builder: (context, value, _) {
-                    String strpesanan = "";
-                    value.cart.forEach((element) {
-                      strpesanan = strpesanan +
-                          "\n" +
-                          element.name +
-                          "(" +
-                          element.quantity.toString() +
-                          ")";
-                    });
-                    return ElevatedButton( //ini button keranjang
-                      onPressed: () {
+ void openDialog(BuildContext context, TextEditingController namaController,
+    TextEditingController nomormejaController) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: Container(
+          height: 280,
+          padding: EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Text(
+                "Nama",
+                style: GoogleFonts.montserrat(),
+              ),
+              TextFormField(
+                controller: namaController,
+                decoration: InputDecoration(border: OutlineInputBorder()),
+              ),
+              SizedBox(height: 20),
+              Text(
+                "Nomor Meja",
+                style: GoogleFonts.montserrat(),
+              ),
+              TextFormField(
+                controller: nomormejaController,
+                decoration: InputDecoration(border: OutlineInputBorder()),
+              ),
+              SizedBox(height: 20),
+              Consumer<CartProvider>(
+                builder: (context, value, _) {
+                  String strpesanan = "";
+                  value.cart.forEach((element) {
+                    strpesanan += "\n" +
+                        element.name +
+                        " (" +
+                        element.quantity.toString() +
+                        ")";
+                  });
+                  return ElevatedButton(
+                    onPressed: () {
+                      // Check if nama and nomormeja are not empty
+                      if (namaController.text.isNotEmpty &&
+                          nomormejaController.text.isNotEmpty) {
                         String pesanan = "Nama : " +
                             namaController.text +
-                            "\nNomor Meja :" +
+                            "\nNomor Meja : " +
                             nomormejaController.text +
-                            "\nPesanan :" +
+                            "\nPesanan : " +
                             "\n" +
                             strpesanan;
 
                         print(pesanan);
+                        namaController.clear();
+                        nomormejaController.clear();
                         Navigator.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("thanks bro duit anda saya ambil tapi pesanan ngk ada awokawokawok")),
+                          SnackBar(
+                            content: Text("Pesanan anda telah diterima."),
+                          ),
                         );
-                      },
-                      child: Text("Pesan"),
-                    );
-                  },
-                )
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          openDialog();
-        },
-        backgroundColor: Colors.teal,
-        child: badges.Badge(
-          badgeContent: Consumer<CartProvider>(builder: (context, value, _) {
-            return Text(
-              (value.total > 0) ? value.total.toString() : "",
-              style: GoogleFonts.montserrat(color: Colors.white),
-            );
-          }),
-          child: Icon(Icons.shopping_bag, color: Colors.white),
-          badgeStyle: badges.BadgeStyle(
-            badgeColor: Colors.redAccent,
+                      } else {
+                        // Show an error message if nama or nomormeja is empty
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Mohon lengkapi Nama dan Nomor Meja."),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text("Pesan"),
+                  );
+                },
+              ),
+            ],
           ),
         ),
+      );
+    },
+  );
+}
+
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.white,
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        openDialog(context, namaController, nomormejaController);
+      },
+      backgroundColor: Colors.teal,
+      child: badges.Badge(
+        badgeContent: Consumer<CartProvider>(builder: (context, value, _) {
+          return Text(
+            (value.total > 0) ? value.total.toString() : "",
+            style: GoogleFonts.montserrat(color: Colors.white),
+          );
+        }),
+        child: Icon(Icons.shopping_bag, color: Colors.white),
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: Colors.redAccent,
+        ),
       ),
+    ),
       body: SafeArea(
         child: Column(
           children: [
