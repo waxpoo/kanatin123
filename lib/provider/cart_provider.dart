@@ -23,7 +23,7 @@ class CartProvider with ChangeNotifier {
               : 0;
     } else {
       //belum ada
-      _cart.add(CartModel(name: name, menuId: menuId, quantity: 1));
+      _cart.add(CartModel(name: name, menuId: menuId, quantity: 1,));
       print('JUMLAH : ' + _cart.length.toString());
       _total = _total + 1;
     }
