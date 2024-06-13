@@ -205,89 +205,110 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
- void openDialog(BuildContext context, TextEditingController namaController, TextEditingController nomormejaController) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder( // Gunakan StatefulBuilder untuk mengatur state di dalam dialog
-        builder: (context, setState) {
-          return AlertDialog(
-            content: Container(
-              height: 280,
-              padding: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  Text(
-                    "Nama",
-                    style: GoogleFonts.montserrat(),
-                  ),
-                  TextFormField(
-                    controller: namaController,
-                    decoration: InputDecoration(border: OutlineInputBorder()),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "Nomor Meja",
-                    style: GoogleFonts.montserrat(),
-                  ),
-                  TextFormField(
-                    controller: nomormejaController,
-                    decoration: InputDecoration(border: OutlineInputBorder()),
-                  ),
-                  SizedBox(height: 20),
-                  Consumer<CartProvider>(
-                    builder: (context, value, _) {
-                      String strpesanan = "";
-                      value.cart.forEach((element) {
-                        strpesanan += "\n" +
-                            element.name +
-                            " (" +
-                            element.quantity.toString() +
-                            ")";
-                      });
-                      return ElevatedButton(
-                        onPressed: () {
-                          if (namaController.text.isNotEmpty &&
-                              nomormejaController.text.isNotEmpty) {
-                            String pesanan = "Nama : " +
-                                namaController.text +
-                                "\nNomor Meja : " +
-                                nomormejaController.text +
-                                "\nPesanan : " +
-                                "\n" +
-                                strpesanan;
+  void openDialog(BuildContext context, TextEditingController namaController,
+      TextEditingController nomormejaController) {
+    if (filteredMenu.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Tidak ada menu makanan yang tersedia untuk dipesan."),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: Text("Pesan Menu"),
+                content: Container(
+                  height: 280,
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Nama",
+                        style: GoogleFonts.montserrat(),
+                      ),
+                      TextFormField(
+                        controller: namaController,
+                        decoration:
+                            InputDecoration(border: OutlineInputBorder()),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        "Nomor Meja",
+                        style: GoogleFonts.montserrat(),
+                      ),
+                      TextFormField(
+                        controller: nomormejaController,
+                        decoration:
+                            InputDecoration(border: OutlineInputBorder()),
+                      ),
+                      SizedBox(height: 20),
+                      Consumer<CartProvider>(
+                        builder: (context, value, _) {
+                          String strpesanan = "";
+                          value.cart.forEach((element) {
+                            strpesanan += "\n" +
+                                element.name +
+                                " (" +
+                                element.quantity.toString() +
+                                ")";
+                          });
+                          return ElevatedButton(
+                            onPressed: () {
+                              if (namaController.text.isNotEmpty &&
+                                  nomormejaController.text.isNotEmpty) {
+                                String pesanan = "Nama : " +
+                                    namaController.text +
+                                    "\nNomor Meja : " +
+                                    nomormejaController.text +
+                                    "\nPesanan : " +
+                                    "\n" +
+                                    strpesanan;
 
-                            print(pesanan);
-                            // Tidak perlu clear controller di sini
-                            Navigator.of(context).pop();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Pesanan anda telah diterima."),
-                              ),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
-                                    Text("Mohon lengkapi Nama dan Nomor Meja."),
-                              ),
-                            );
-                          }
+                                print(pesanan);
+
+                                // Clear the controllers
+                                namaController.clear();
+                                nomormejaController.clear();
+
+                                Navigator.of(context).pop();
+
+                                // Tampilkan SnackBar di tengah layar
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text("Pesanan anda telah diterima."),
+                                    behavior: SnackBarBehavior.floating,
+                                    margin: EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 30),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        "Mohon lengkapi Nama dan Nomor Meja."),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text("Pesan"),
+                          );
                         },
-                        child: Text("Pesan"),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       );
-    },
-  );
-}
-
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -413,11 +434,12 @@ class _HomePageState extends State<HomePage> {
                                           menu.discription,
                                           textAlign: TextAlign.left,
                                           style: GoogleFonts.montserrat(
-                                              fontSize: 13,
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyText2
-                                                  ?.color),
+                                            fontSize: 13,
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.color, // Update here
+                                          ),
                                         ),
                                         SizedBox(height: 12),
                                         Row(
